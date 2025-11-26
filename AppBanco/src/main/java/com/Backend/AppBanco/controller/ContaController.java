@@ -57,13 +57,22 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "400", description = "Requisição inválida", 
         content = @Content) })
     @PostMapping("/{idUsuario}")
-    public ResponseEntity<?> criarConta(@PathVariable Integer idUsuario, @RequestBody ContaDTO contaDTO) {
-        try {
-            ContaEntity conta = contaService.criarConta(contaDTO.getNomeTitular(), idUsuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(toContaDTO(conta));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<ContaDTO> criarConta(@PathVariable Integer idUsuario, @RequestBody ContaDTO contaDTO) {
+        ContaEntity conta = contaService.criarConta(contaDTO.getNomeTitular(), idUsuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toContaDTO(conta));
+    }
+
+    @Operation(summary = "Listar contas por usuário")
+    @ApiResponses(value = { 
+      @ApiResponse(responseCode = "200", description = "Contas listadas com sucesso", 
+        content = { @Content(mediaType = "application/json", 
+          schema = @Schema(implementation = ContaDTO.class)) }) })
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<ContaDTO>> listarContasPorUsuario(@PathVariable Integer idUsuario) {
+        List<ContaDTO> contas = contaService.listarContasPorUsuario(idUsuario).stream()
+            .map(this::toContaDTO)
+            .toList();
+        return ResponseEntity.ok(contas);
     }
 
     @Operation(summary = "Buscar Conta")
@@ -74,13 +83,9 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "404", description = "Conta não encontrada", 
         content = @Content) })
     @GetMapping("/{idConta}")
-    public ResponseEntity<?> buscarConta(@PathVariable Integer idConta) {
-        try {
-            ContaEntity conta = contaService.buscarContaPorId(idConta);
-            return ResponseEntity.ok(toContaDTO(conta));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+    public ResponseEntity<ContaDTO> buscarConta(@PathVariable Integer idConta) {
+        ContaEntity conta = contaService.buscarContaPorId(idConta);
+        return ResponseEntity.ok(toContaDTO(conta));
     }
 
     @Operation(summary = "Consultar saldo")
@@ -91,13 +96,9 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "404", description = "Conta não encontrada", 
         content = @Content) })
     @GetMapping("/{idConta}/saldo")
-    public ResponseEntity<?> consultarSaldo(@PathVariable Integer idConta) {
-        try {
-            BigDecimal saldo = contaService.consultarSaldo(idConta);
-            return ResponseEntity.ok(saldo);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+    public ResponseEntity<BigDecimal> consultarSaldo(@PathVariable Integer idConta) {
+        BigDecimal saldo = contaService.consultarSaldo(idConta);
+        return ResponseEntity.ok(saldo);
     }
 
     @Operation(summary = "Realizar Depósito")
@@ -108,13 +109,9 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "400", description = "Requisição inválida", 
         content = @Content) })
     @PostMapping("/{idConta}/deposito")
-    public ResponseEntity<?> realizarDeposito(@PathVariable Integer idConta, @RequestParam BigDecimal valor) {
-        try {
-            ContaEntity conta = contaService.realizarDeposito(idConta, valor);
-            return ResponseEntity.ok(toContaDTO(conta));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<ContaDTO> realizarDeposito(@PathVariable Integer idConta, @RequestParam BigDecimal valor) {
+        ContaEntity conta = contaService.realizarDeposito(idConta, valor);
+        return ResponseEntity.ok(toContaDTO(conta));
     }
 
     @Operation(summary = "Realizar Saque")
@@ -125,13 +122,9 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "400", description = "Requisição inválida", 
         content = @Content) })
     @PostMapping("/{idConta}/saque")
-    public ResponseEntity<?> realizarSaque(@PathVariable Integer idConta, @RequestParam BigDecimal valor) {
-        try {
-            ContaEntity conta = contaService.realizarSaque(idConta, valor);
-            return ResponseEntity.ok(toContaDTO(conta));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<ContaDTO> realizarSaque(@PathVariable Integer idConta, @RequestParam BigDecimal valor) {
+        ContaEntity conta = contaService.realizarSaque(idConta, valor);
+        return ResponseEntity.ok(toContaDTO(conta));
     }
 
     @Operation(summary = "Mostrar Extrato")
@@ -142,21 +135,17 @@ private ContaDTO toContaDTO(ContaEntity conta) {
       @ApiResponse(responseCode = "404", description = "Extrato não encontrado", 
         content = @Content) })
     @GetMapping("/{idConta}/extrato")
-    public ResponseEntity<?> obterExtrato(@PathVariable Integer idConta) {
-        try {
-            List<TransacaoDTO> extrato = transacaoService.obterExtrato(idConta).stream()
-                .map(transacao -> new TransacaoDTO(
-                    transacao.getIdTransacao(),
-                    transacao.getConta().getIdConta(),
-                    transacao.getTipo(),
-                    transacao.getValor(),
-                    transacao.getDataTransacao()
-                ))
-                .toList();
-            return ResponseEntity.ok(extrato);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+    public ResponseEntity<List<TransacaoDTO>> obterExtrato(@PathVariable Integer idConta) {
+        List<TransacaoDTO> extrato = transacaoService.obterExtrato(idConta).stream()
+            .map(transacao -> new TransacaoDTO(
+                transacao.getIdTransacao(),
+                transacao.getConta().getIdConta(),
+                transacao.getTipo(),
+                transacao.getValor(),
+                transacao.getDataTransacao()
+            ))
+            .toList();
+        return ResponseEntity.ok(extrato);
     }
 }
 
