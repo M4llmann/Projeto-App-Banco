@@ -53,13 +53,9 @@ public class UsuarioController {
       @ApiResponse(responseCode = "400", description = "Requisição inválida", 
         content = @Content) })
     @PostMapping
-    public ResponseEntity<?> criarUsuario(@RequestBody UsuarioEntity usuario) {
-        try {
-            UsuarioEntity usuarioCriado = usuarioService.criarUsuario(usuario.getEmail(), usuario.getSenha());
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCriado);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<UsuarioEntity> criarUsuario(@RequestBody UsuarioEntity usuario) {
+        UsuarioEntity usuarioCriado = usuarioService.criarUsuario(usuario.getEmail(), usuario.getSenha());
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCriado);
     }
 
     @Operation(summary = "Buscar usuário por e-mail")
@@ -70,13 +66,9 @@ public class UsuarioController {
       @ApiResponse(responseCode = "404", description = "Usuário não encontrado", 
         content = @Content) })
     @GetMapping("/{email}")
-    public ResponseEntity<?> buscarUsuario(@PathVariable String email) {
-        try {
-            UsuarioEntity usuario = usuarioService.buscarUsuarioPorEmail(email);
-            return ResponseEntity.ok(usuario);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
+    public ResponseEntity<UsuarioEntity> buscarUsuario(@PathVariable String email) {
+        UsuarioEntity usuario = usuarioService.buscarUsuarioPorEmail(email);
+        return ResponseEntity.ok(usuario);
     }
 
     @Operation(summary = "Efetuar login")
@@ -87,8 +79,7 @@ public class UsuarioController {
       @ApiResponse(responseCode = "401", description = "Credenciais inválidas", 
         content = @Content) })
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody UsuarioEntity usuario) {
-    try {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UsuarioEntity usuario) {
         UsuarioEntity usuarioLogado = usuarioService.login(usuario.getEmail(), usuario.getSenha());
         
         // Gerar o token JWT
@@ -99,11 +90,5 @@ public ResponseEntity<?> login(@RequestBody UsuarioEntity usuario) {
             "token", token,
             "usuario", usuarioLogado
         ));
-    } catch (RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-            "error", "Credenciais inválidas",
-            "message", ex.getMessage()
-        ));
-    }
     }
 }

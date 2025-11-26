@@ -27,19 +27,29 @@ Este **APP Bancário** é uma aplicação full-stack que simula funcionalidades 
 ## 🚀 Funcionalidades
 
 ### Autenticação e Usuários
-- ✅ **Criação de Usuário**: Registro de novos usuários no sistema
+- ✅ **Criação de Usuário**: Registro de novos usuários no sistema com validação de dados
 - ✅ **Login com JWT**: Autenticação segura usando tokens JWT
+- ✅ **Hash de Senhas**: Senhas criptografadas com BCrypt para máxima segurança
 - ✅ **Busca de Usuário**: Consulta de usuários por e-mail
 
 ### Gestão de Contas
 - ✅ **Criação de Conta**: Criação de contas bancárias associadas a usuários
+- ✅ **Listagem de Contas**: Visualização de todas as contas do usuário
 - ✅ **Consulta de Conta**: Visualização de detalhes da conta
-- ✅ **Consulta de Saldo**: Verificação do saldo atual
+- ✅ **Consulta de Saldo**: Verificação do saldo atual em tempo real
 
 ### Transações Financeiras
-- ✅ **Depósito**: Adição de valores ao saldo da conta
+- ✅ **Depósito**: Adição de valores ao saldo da conta com validações
 - ✅ **Saque**: Retirada de valores (com validação de saldo suficiente)
 - ✅ **Extrato**: Visualização completa do histórico de transações
+- ✅ **Validações de Negócio**: Verificações de saldo, valores positivos e status da conta
+
+### Interface do Usuário
+- ✅ **Design Moderno**: Interface com gradientes e animações suaves
+- ✅ **Responsivo**: Totalmente adaptável para dispositivos móveis e desktop
+- ✅ **Loading States**: Feedback visual durante operações assíncronas
+- ✅ **Tratamento de Erros**: Mensagens de erro claras e informativas
+- ✅ **Validações em Tempo Real**: Validação de formulários com feedback imediato
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -47,17 +57,23 @@ Este **APP Bancário** é uma aplicação full-stack que simula funcionalidades 
 - **Java 21**: Linguagem de programação
 - **Spring Boot 3.3.6**: Framework para desenvolvimento de APIs REST
 - **Spring Security**: Autenticação e autorização
+- **BCrypt**: Criptografia de senhas
 - **JWT (JSON Web Tokens)**: Autenticação stateless
 - **Spring Data JPA**: Persistência de dados
 - **Hibernate Validator**: Validação de dados
+- **Spring Validation**: Validação de requisições
 - **Lombok**: Redução de boilerplate code
 - **SpringDoc OpenAPI**: Documentação automática da API (Swagger)
+- **SLF4J/Logback**: Sistema de logging profissional
+- **Global Exception Handler**: Tratamento centralizado de exceções
 
 ### Frontend
 - **Angular 19**: Framework para desenvolvimento web
 - **TypeScript**: Superset do JavaScript
 - **RxJS**: Programação reativa
 - **Angular Router**: Navegação e roteamento
+- **CSS3 Moderno**: Gradientes, animações e design responsivo
+- **Validação de Formulários**: Validação em tempo real com feedback visual
 
 ### Banco de Dados
 - **PostgreSQL 14**: Sistema de gerenciamento de banco de dados relacional
@@ -188,6 +204,7 @@ O Swagger fornece:
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | `/api/contas/{idUsuario}` | Criar nova conta |
+| GET | `/api/contas/usuario/{idUsuario}` | Listar contas por usuário |
 | GET | `/api/contas/{idConta}` | Buscar conta por ID |
 | GET | `/api/contas/{idConta}/saldo` | Consultar saldo |
 | POST | `/api/contas/{idConta}/deposito?valor={valor}` | Realizar depósito |
@@ -232,10 +249,35 @@ docker compose down -v
 
 ## 🔒 Segurança
 
-- Autenticação baseada em JWT (JSON Web Tokens)
-- Spring Security configurado para proteger endpoints
-- Validação de dados com Hibernate Validator
-- CORS configurado para permitir comunicação entre frontend e backend
+- **Autenticação JWT**: Tokens seguros para autenticação stateless
+- **Criptografia de Senhas**: BCrypt para hash seguro de senhas
+- **Spring Security**: Proteção de endpoints com filtros JWT
+- **Validação de Dados**: Hibernate Validator e Spring Validation
+- **Tratamento de Exceções**: Global Exception Handler para respostas padronizadas
+- **CORS Configurado**: Comunicação segura entre frontend e backend
+- **Validações de Negócio**: Verificações de saldo, valores e status de contas
+- **Logging**: Sistema de logs para auditoria e debugging
+
+## ✨ Melhorias Implementadas
+
+### Backend
+- ✅ **Exceções Customizadas**: Classes específicas para diferentes tipos de erros
+- ✅ **Global Exception Handler**: Tratamento centralizado e padronizado de exceções
+- ✅ **BCrypt para Senhas**: Criptografia segura de senhas antes de armazenar
+- ✅ **Logging Profissional**: Sistema de logs com SLF4J para rastreamento
+- ✅ **Validações Robustas**: Validação de dados de entrada e regras de negócio
+- ✅ **Transações**: Uso de `@Transactional` para garantir consistência de dados
+- ✅ **DTOs Melhorados**: Separação clara entre entidades e objetos de transferência
+- ✅ **Documentação Swagger**: API documentada automaticamente
+
+### Frontend
+- ✅ **Design Moderno**: Interface com gradientes, sombras e animações suaves
+- ✅ **Loading States**: Feedback visual durante operações assíncronas
+- ✅ **Tratamento de Erros**: Mensagens de erro claras e informativas
+- ✅ **Validações de Formulário**: Validação em tempo real com feedback
+- ✅ **Responsividade**: Totalmente adaptável para mobile e desktop
+- ✅ **UX Melhorada**: Animações, transições e feedback visual
+- ✅ **Acessibilidade**: Labels, placeholders e estados de botões desabilitados
 
 ## 📝 Notas Importantes
 

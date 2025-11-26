@@ -1,20 +1,54 @@
 <div class="login-container">
-  <h1>APP Banco</h1>
-  <form (ngSubmit)="cadastrar()" class="login-form">
-    <div class="input-group">
-      <label for="email">Email:</label>
-      <input id="email" [(ngModel)]="email" name="email" type="email" required />
-    </div>
+  <div class="login-card fade-in">
+    <h1>🏦 Banco Digital</h1>
+    <p class="subtitle">Gerencie suas finanças de forma simples e segura</p>
+    
+    <form (ngSubmit)="cadastrar()" class="login-form">
+      <div class="input-group">
+        <label for="email">E-mail</label>
+        <input 
+          id="email" 
+          [(ngModel)]="email" 
+          name="email" 
+          type="email" 
+          placeholder="seu@email.com"
+          required 
+          [disabled]="loading" />
+      </div>
 
-    <div class="input-group">
-      <label for="senha">Senha:</label>
-      <input id="senha" [(ngModel)]="senha" name="senha" type="password" required />
-    </div>
+      <div class="input-group">
+        <label for="senha">Senha</label>
+        <input 
+          id="senha" 
+          [(ngModel)]="senha" 
+          name="senha" 
+          type="password" 
+          placeholder="Mínimo 6 caracteres"
+          required 
+          [disabled]="loading" />
+      </div>
 
-    <div class="buttons">
-      <button type="button" (click)="login()" class="login-btn">Login</button>
-      <button type="submit" class="submit-btn">Cadastrar</button>
-    </div>
-  </form>
-  <a routerLink="/conta" class="conta-link"></a>
+      <div *ngIf="erroLogin || erroCadastro" class="error-message">
+        {{ erroLogin || erroCadastro }}
+      </div>
+
+      <div class="buttons">
+        <button 
+          type="button" 
+          (click)="login()" 
+          class="login-btn"
+          [disabled]="loading || !email || !senha">
+          <span *ngIf="loadingLogin" class="loading"></span>
+          {{ loadingLogin ? 'Entrando...' : 'Entrar' }}
+        </button>
+        <button 
+          type="submit" 
+          class="submit-btn"
+          [disabled]="loading || !email || !senha">
+          <span *ngIf="loading" class="loading"></span>
+          {{ loading ? 'Cadastrando...' : 'Criar Conta' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
