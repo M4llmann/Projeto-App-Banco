@@ -1,231 +1,400 @@
-/* Corpo da Página */
 .content-wrapper {
   width: 100%;
-  max-width: 480px;
-  min-height: 800px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem 1rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.container {
+  max-width: 600px;
   margin: 0 auto;
-  background-color: #2c2f36;
-  color: #f1f1f1;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Cabeçalhos */
-h1, h3, h4 {
-  color: #f1f1f1;
-  font-weight: bold;
+.header {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
 }
+
 h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
+  font-size: 1.875rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
 }
 
-.transaction-section {
-  display: flex;
-  flex-direction: column; /* Organiza os itens de forma vertical */
-  align-items: center; /* Centraliza os itens horizontalmente */
-  justify-content: center; /* Alinha verticalmente os itens no centro */
-  
-  text-align: center; /* Centraliza o texto dentro da div */
+h3, h4 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
-/* Estilo para o campo de entrada */
-.input-number {
-  width: 40%; /* Largura de 50% em relação à div pai */
-  padding: 10px;
-  font-size: 16px;
-  box-sizing: border-box; /* Garante que o padding não afete a largura do input */
-  margin-bottom: 20px; /* Espaçamento entre o input e os botões */
+h3 {
+  font-size: 1.25rem;
 }
 
-input[type="text"], input[type="number"] {
-
-  text-align: center;
-  padding: 13px;
-  margin: 10px 0;
-  border: 1px solid #444;
-  background-color: #333;
-  color: #f1f1f1;
-  font-size: 16px;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-input.input-number::-webkit-inner-spin-button,
-input.input-number::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+h4 {
+  font-size: 1.125rem;
 }
 
-input.input-number {
-    -moz-appearance: textfield;
+.create-account-section {
+  background: var(--background-card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  animation: slideIn 0.3s ease-out;
 }
-/* Botões */
-button {
+
+.label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.input-text, .input-number {
   width: 100%;
-  padding: 14px;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
-  font-size: 16px;
-  margin: 10px 0;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  border-radius: 4px;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  outline: none;
+  text-align: center;
 }
 
-button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
+.input-text:focus, .input-number:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-button:disabled {
-  background-color: #555;
-  cursor: not-allowed;
+.input-number::-webkit-inner-spin-button,
+.input-number::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-/* Lista de Contas */
-ul {
+.input-number {
+  -moz-appearance: textfield;
+}
+
+.accounts-section {
+  margin-bottom: 2rem;
+}
+
+.accounts-list {
   list-style: none;
   padding: 0;
+  display: grid;
+  gap: 0.75rem;
 }
 
-li {
-  margin-bottom: 15px;
+.account-item {
+  margin: 0;
 }
 
 .account-button {
   width: 100%;
-  padding: 14px;
-  border: 1px solid #444;
-  background-color: #333;
-  text-align: center;
-  font-size: 18px;
-  color: #f1f1f1;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  background: var(--background-card);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-align: center;
 }
 
 .account-button:hover {
-  background-color: #444;
+  border-color: var(--primary-color);
   transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
-.selected {
-  background-color: #4CAF50;
+.account-button.selected {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border-color: var(--primary-color);
   color: white;
 }
 
-/* Erros */
-.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 12px;
-  margin-top: 20px;
-  text-align: center;
-  border-radius: 4px;
+.account-details-section {
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Extrato */
-.extrato-container {
-  padding: 20px;
-  background-color: #44474d;
+.transaction-section {
+  background: var(--background-card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.transaction-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-deposito, .btn-saque, .btn-criar-conta, .btn-extrato, .btn-sair {
+  padding: 0.875rem 1.5rem;
+  border: none;
   border-radius: 8px;
-  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.extrato-title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
-  color: #f1f1f1;
+.btn-deposito {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+  color: white;
+}
+
+.btn-deposito:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-saque {
+  background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-hover) 100%);
+  color: white;
+}
+
+.btn-saque:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+}
+
+.btn-criar-conta {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+  width: 100%;
+}
+
+.btn-criar-conta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
 }
 
 .btn-extrato {
-  background-color: #4CAF50;
-  color: white;
-  font-size: 16px;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
+  background: var(--background-dark);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
   width: 100%;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
-.btn-extrato:hover {
-  background-color: #45a049;
+.btn-extrato:hover:not(:disabled) {
+  border-color: var(--primary-color);
   transform: translateY(-2px);
+}
+
+.btn-sair {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border: 2px solid var(--danger-color);
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.btn-sair:hover {
+  background: var(--danger-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.extrato-container {
+  background: var(--background-card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+}
+
+.extrato-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.extrato-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+.extrato-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .extrato-item {
   display: flex;
   justify-content: space-between;
-  align-items: end;
-  padding: 4px 0;
-  border-bottom: 1px solid #555;
-  font-size: 15px;
-  color: #f1f1f1;
+  align-items: center;
+  padding: 0.875rem;
+  margin-bottom: 0.5rem;
+  background: var(--background-dark);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+  transition: all 0.2s ease;
 }
 
-.transacao-data, .transacao-tipo, .transacao-valor {
-  display: inline-block;
-  text-align: left;
+.extrato-item:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow);
+}
+
+.transacao-data {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
   flex: 1;
 }
 
-.transacao-valor.esquerda {
+.transacao-tipo {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  text-align: center;
+}
+
+.transacao-valor {
+  font-weight: 700;
+  font-size: 1rem;
+  flex: 1;
   text-align: right;
+}
+
+.transacao-valor.positivo {
+  color: var(--secondary-color);
+}
+
+.transacao-valor.negativo {
+  color: var(--danger-color);
 }
 
 .no-transacoes {
   text-align: center;
-  color: #999;
+  color: var(--text-secondary);
+  padding: 2rem;
+  font-style: italic;
+}
+
+.conta-container {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  text-align: center;
 }
 
 .conta-detalhes {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.conta-saldo {
+  font-size: 2rem;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.error-section {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+  padding: 1rem;
+  border-radius: 8px;
   text-align: center;
-  margin-top: 50px;
-  color: #f1f1f1;
+  margin-top: 1rem;
+  animation: slideIn 0.3s ease-out;
 }
 
-/* Responsividade */
+.error-message {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.6s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.success-message {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid var(--secondary-color);
+  color: var(--secondary-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.loading-container .loading {
+  margin: 0 auto 1rem;
+  display: block;
+}
+
 @media (max-width: 480px) {
-  .content-wrapper {
-    width: 90%;
-    padding: 15px;
+  .container {
+    padding: 1.5rem;
   }
 
   h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
-  input, button {
-    font-size: 14px;
+  .transaction-buttons {
+    grid-template-columns: 1fr;
   }
 
-  .account-button {
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .content-wrapper {
-    width: 80%;
-  }
-
-  h1 {
-    font-size: 26px;
-  }
-
-  .saldo {
-    font-size: 28px;
+  .conta-saldo {
+    font-size: 1.5rem;
   }
 }

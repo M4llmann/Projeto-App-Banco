@@ -1,41 +1,67 @@
 <div class="content-wrapper">
   <div class="container">
-    <!-- Título e nome do usuário -->
     <header class="header">
-      <h1>Gerenciador da Conta</h1>
+      <h1>🏦 Gerenciador de Conta</h1>
     </header>
 
-    <!-- Formulário para criar conta (aparece somente se não houver nenhuma conta) -->
-    <section *ngIf="contas.length === 0" class="create-account-section">
-      <h3>Criar Conta</h3>
+    <!-- Formulário para criar conta -->
+    <section *ngIf="contas.length === 0 && !loading" class="create-account-section fade-in">
+      <h3>Criar Nova Conta</h3>
       <label for="nomeTitular" class="label">Nome do Titular</label>
       <input 
         type="text" 
         id="nomeTitular" 
         [(ngModel)]="nomeTitular" 
-        placeholder="Digite o nome do titular" 
-        class="input-text" />
-      <button (click)="criarConta()" class="btn-criar-conta">Criar Conta</button>
+        placeholder="Digite o nome completo" 
+        class="input-text"
+        [disabled]="loadingCriarConta" />
+      <button 
+        (click)="criarConta()" 
+        class="btn-criar-conta"
+        [disabled]="loadingCriarConta || !nomeTitular.trim()">
+        <span *ngIf="loadingCriarConta" class="loading"></span>
+        {{ loadingCriarConta ? 'Criando...' : 'Criar Conta' }}
+      </button>
+      <div *ngIf="mensagemErro" class="error-section">
+        <p class="error-message">{{ mensagemErro }}</p>
+      </div>
+      <div *ngIf="mensagemSucesso" class="success-message">
+        {{ mensagemSucesso }}
+      </div>
     </section>
 
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading"></div>
+      <p>Carregando contas...</p>
+    </div>
+
     <!-- Listagem de contas -->
-    <section class="accounts-section">
-      <h3>Bem vindo!</h3>
+    <section *ngIf="contas.length > 0" class="accounts-section fade-in">
+      <h3>Suas Contas</h3>
       <ul class="accounts-list">
         <li *ngFor="let conta of contas" class="account-item">
           <button 
             (click)="selecionarConta(conta)" 
             [class.selected]="conta === contaSelecionada" 
             class="account-button">
-            {{ conta.nomeTitular }}
+            💳 {{ conta.nomeTitular }}
           </button>
         </li>
       </ul>
     </section>
 
     <!-- Se uma conta for selecionada -->
-    <section *ngIf="contaSelecionada" class="account-details-section">
-      <h3>Detalhes da Conta: {{ contaSelecionada.nomeTitular }}</h3>
+    <section *ngIf="contaSelecionada" class="account-details-section fade-in">
+      <h3>Conta: {{ contaSelecionada.nomeTitular }}</h3>
+
+      <!-- Saldo Atual -->
+      <section class="conta-container">
+        <div class="conta-detalhes">
+          <p>Saldo Atual</p>
+          <span class="conta-saldo">{{ contaSelecionada.saldo | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+      </section>
 
       <!-- Realizar Transação -->
       <div class="transaction-section">
@@ -43,61 +69,79 @@
         <input 
           type="number" 
           [(ngModel)]="valor" 
-          placeholder="Digite o valor" 
-          class="input-number" />
+          placeholder="0.00" 
+          step="0.01"
+          min="0.01"
+          class="input-number"
+          [disabled]="loadingTransacao" />
 
-        <!-- Botões de Depósito e Saque -->
-        <button 
-          (click)="realizarDeposito()" 
-          *ngIf="valor > 0" 
-          class="btn-deposito">
-          Depositar
-        </button>
+        <div class="transaction-buttons">
+          <button 
+            (click)="realizarDeposito()" 
+            [disabled]="!valor || valor <= 0 || loadingTransacao"
+            class="btn-deposito">
+            <span *ngIf="loadingTransacao && tipoTransacao === 'deposito'" class="loading"></span>
+            💰 Depositar
+          </button>
 
-        <button 
-          (click)="realizarSaque()" 
-          *ngIf="valor > 0" 
-          class="btn-saque">
-          Sacar
-        </button>
+          <button 
+            (click)="realizarSaque()" 
+            [disabled]="!valor || valor <= 0 || loadingTransacao"
+            class="btn-saque">
+            <span *ngIf="loadingTransacao && tipoTransacao === 'saque'" class="loading"></span>
+            💸 Sacar
+          </button>
+        </div>
+
+        <div *ngIf="mensagemErro" class="error-section">
+          <p class="error-message">{{ mensagemErro }}</p>
+        </div>
+        <div *ngIf="mensagemSucesso" class="success-message">
+          {{ mensagemSucesso }}
+        </div>
       </div>
 
       <!-- Extrato -->
       <section class="extrato-container">
-        <h4 class="extrato-title">Extrato da Conta</h4>
-        <button class="btn-extrato" (click)="carregarExtrato()">Carregar Extrato</button>
+        <h4 class="extrato-title">📋 Extrato da Conta</h4>
+        <button 
+          class="btn-extrato" 
+          (click)="carregarExtrato()"
+          [disabled]="loadingExtrato">
+          <span *ngIf="loadingExtrato" class="loading"></span>
+          {{ loadingExtrato ? 'Carregando...' : 'Carregar Extrato' }}
+        </button>
 
         <div *ngIf="extrato.length > 0" class="extrato-list">
           <ul>
             <li *ngFor="let transacao of extrato" class="extrato-item">
-              <span class="transacao-data">{{ transacao.dataTransacao | date: 'dd/MM/yyyy HH:mm' }}</span> 
-              <span class="transacao-tipo">{{ transacao.tipo }}</span> 
-              <span class="transacao-valor esquerda">{{ transacao.valor | currency }}</span>
+              <span class="transacao-data">{{ transacao.dataTransacao | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="transacao-tipo">{{ transacao.tipo }}</span>
+              <span 
+                class="transacao-valor"
+                [class.positivo]="transacao.tipo === 'DEPÓSITO'"
+                [class.negativo]="transacao.tipo === 'SAQUE'">
+                {{ transacao.tipo === 'DEPÓSITO' ? '+' : '-' }} {{ transacao.valor | currency:'BRL':'symbol':'1.2-2' }}
+              </span>
             </li>
           </ul>
         </div>
 
-        <div *ngIf="extrato.length === 0" class="no-transacoes">
-          <p>Nenhuma transação registrada.</p>
-        </div>
-      </section>
-
-      <!-- Detalhes da Conta -->
-      <section class="conta-container">
-        <div class="conta-detalhes">
-          <p><strong>Saldo Atual: R</strong> <span class="conta-saldo">{{ contaSelecionada.saldo | currency }}</span></p>
+        <div *ngIf="extrato.length === 0 && !loadingExtrato && extratoCarregado" class="no-transacoes">
+          <p>Nenhuma transação registrada ainda.</p>
         </div>
       </section>
     </section>
 
     <!-- Exibição de erros -->
-    <section *ngIf="erro" class="error-section">
+    <section *ngIf="erro && contas.length === 0" class="error-section">
       <p class="error-message">Você ainda não tem nenhuma conta cadastrada!</p>
     </section>
   </div>
+  
   <button 
-  (click)="sair()" 
-  class="btn-sair">
-  Sair
-</button>
+    (click)="sair()" 
+    class="btn-sair">
+    🚪 Sair
+  </button>
 </div>

@@ -26,8 +26,16 @@ export class ContaComponent implements OnInit {
   nomeTitular: string = '';
   valor: number = 0;
   mostrarExtrato: boolean = false;
-  extrato: TransacaoDTO[] = []; // Tipagem correta para o extrato
+  extrato: TransacaoDTO[] = [];
   erro: boolean = false;
+  loading: boolean = false;
+  loadingCriarConta: boolean = false;
+  loadingTransacao: boolean = false;
+  loadingExtrato: boolean = false;
+  tipoTransacao: string = '';
+  mensagemErro: string = '';
+  mensagemSucesso: string = '';
+  extratoCarregado: boolean = false;
 
   constructor(private contaService: ContaService, private router: Router) { }
 
@@ -45,14 +53,17 @@ export class ContaComponent implements OnInit {
   listarContas(): void {
     const idUsuario = localStorage.getItem('idUsuario');
     if (!idUsuario) {
-      alert('Usuário não autenticado! Faça login para listar as contas.');
       this.router.navigate(['']);
       return;
     }
 
+    this.loading = true;
+    this.erro = false;
+    this.mensagemErro = '';
+
     this.contaService.listarContasPorUsuario().subscribe({
       next: (dados: ContaDTO | ContaDTO[]) => {
-        console.log('Contas retornadas pelo backend:', dados);
+        this.loading = false;
         
         if (Array.isArray(dados)) {
           this.contas = dados;
@@ -61,11 +72,15 @@ export class ContaComponent implements OnInit {
         }
 
         this.erro = false;
+        if (this.contas.length > 0) {
+          this.selecionarConta(this.contas[0]);
+        }
       },
       error: (err) => {
-        console.error('Erro ao listar contas:', err);
+        this.loading = false;
         this.erro = true;
-        alert('Crie uma conta!');
+        const errorMessage = err.error?.message || 'Erro ao carregar contas.';
+        this.mensagemErro = errorMessage;
       },
     });
   }
@@ -73,72 +88,103 @@ export class ContaComponent implements OnInit {
   selecionarConta(conta: ContaDTO): void {
     this.contaSelecionada = conta;
     this.mostrarExtrato = false;
+    this.extrato = [];
+    this.extratoCarregado = false;
+    this.mensagemErro = '';
+    this.mensagemSucesso = '';
   }
 
   criarConta(): void {
     const idUsuario = localStorage.getItem('idUsuario');
     if (!idUsuario) {
-      alert('Usuário não autenticado!');
+      this.mensagemErro = 'Usuário não autenticado!';
       return;
     }
 
     if (!this.nomeTitular.trim()) {
-      alert('Informe o nome do titular para criar a conta.');
+      this.mensagemErro = 'Informe o nome do titular para criar a conta.';
       return;
     }
 
+    this.loadingCriarConta = true;
+    this.mensagemErro = '';
+    this.mensagemSucesso = '';
+
     this.contaService.criarConta({ nomeTitular: this.nomeTitular }, +idUsuario).subscribe({
       next: (novaConta: ContaDTO) => {
-        console.log('Resposta da API (novaConta):', novaConta);
-        alert('Conta criada com sucesso!');
+        this.loadingCriarConta = false;
+        this.mensagemSucesso = 'Conta criada com sucesso!';
         if (novaConta) {
-          this.contas.push(novaConta);  // Adiciona a nova conta à lista
-          this.selecionarConta(novaConta);  // Seleciona a conta automaticamente
-        } else {
-          console.error('Erro: A resposta da API não contém uma conta válida.');
+          this.contas.push(novaConta);
+          this.selecionarConta(novaConta);
+          this.nomeTitular = '';
+          setTimeout(() => {
+            this.mensagemSucesso = '';
+          }, 3000);
         }
       },
       error: (err) => {
-        console.error('Erro ao criar conta:', err);
-        alert('Erro ao criar a conta.');
+        this.loadingCriarConta = false;
+        const errorMessage = err.error?.message || 'Erro ao criar a conta. Tente novamente.';
+        this.mensagemErro = errorMessage;
       }
     });
   }
 
   realizarDeposito(): void {
     if (!this.contaSelecionada || this.valor <= 0) {
-      alert('Informe um valor válido para depósito.');
+      this.mensagemErro = 'Informe um valor válido para depósito.';
       return;
     }
 
+    this.loadingTransacao = true;
+    this.tipoTransacao = 'deposito';
+    this.mensagemErro = '';
+    this.mensagemSucesso = '';
+
     this.contaService.realizarDeposito(this.contaSelecionada.idConta, this.valor).subscribe({
       next: (contaAtualizada) => {
-        alert('Depósito realizado com sucesso!');
+        this.loadingTransacao = false;
+        this.mensagemSucesso = 'Depósito realizado com sucesso!';
         this.contaSelecionada = contaAtualizada;
         this.valor = 0;
+        setTimeout(() => {
+          this.mensagemSucesso = '';
+        }, 3000);
       },
       error: (err) => {
-        console.error('Erro ao realizar depósito:', err);
-        alert('Erro ao realizar depósito. Tente novamente.');
+        this.loadingTransacao = false;
+        const errorMessage = err.error?.message || 'Erro ao realizar depósito. Tente novamente.';
+        this.mensagemErro = errorMessage;
       },
     });
   }
 
   realizarSaque(): void {
     if (!this.contaSelecionada || this.valor <= 0) {
-      alert('Informe um valor válido para saque.');
+      this.mensagemErro = 'Informe um valor válido para saque.';
       return;
     }
 
+    this.loadingTransacao = true;
+    this.tipoTransacao = 'saque';
+    this.mensagemErro = '';
+    this.mensagemSucesso = '';
+
     this.contaService.realizarSaque(this.contaSelecionada.idConta, this.valor).subscribe({
       next: (contaAtualizada) => {
-        alert('Saque realizado com sucesso!');
+        this.loadingTransacao = false;
+        this.mensagemSucesso = 'Saque realizado com sucesso!';
         this.contaSelecionada = contaAtualizada;
         this.valor = 0;
+        setTimeout(() => {
+          this.mensagemSucesso = '';
+        }, 3000);
       },
       error: (err) => {
-        console.error('Erro ao realizar saque:', err);
-        alert('Erro ao realizar saque, saldo insuficiente. Tente novamente.');
+        this.loadingTransacao = false;
+        const errorMessage = err.error?.message || 'Erro ao realizar saque. Verifique seu saldo.';
+        this.mensagemErro = errorMessage;
       },
     });
   }
@@ -146,17 +192,23 @@ export class ContaComponent implements OnInit {
 
   carregarExtrato(): void {
     if (!this.contaSelecionada) {
-      alert('Selecione uma conta para visualizar o extrato.');
+      this.mensagemErro = 'Selecione uma conta para visualizar o extrato.';
       return;
     }
 
+    this.loadingExtrato = true;
+    this.mensagemErro = '';
+
     this.contaService.getExtrato(this.contaSelecionada.idConta).subscribe({
       next: (extrato) => {
+        this.loadingExtrato = false;
         this.extrato = extrato;
+        this.extratoCarregado = true;
       },
       error: (err) => {
-        console.error('Erro ao carregar extrato:', err);
-        alert('Erro ao carregar o extrato.');
+        this.loadingExtrato = false;
+        const errorMessage = err.error?.message || 'Erro ao carregar o extrato.';
+        this.mensagemErro = errorMessage;
       },
     });
   }
@@ -177,10 +229,8 @@ export class ContaComponent implements OnInit {
     });
   }
   sair(): void {
-    // Limpar as informações do usuário do localStorage
     localStorage.removeItem('idUsuario');
-
-    // Redirecionar para a página de login
+    localStorage.removeItem('token');
     this.router.navigate(['']);
   }
 

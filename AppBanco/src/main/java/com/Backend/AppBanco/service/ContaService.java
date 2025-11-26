@@ -3,96 +3,137 @@ package com.Backend.AppBanco.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Backend.AppBanco.entity.ContaEntity;
 import com.Backend.AppBanco.entity.UsuarioEntity;
+import com.Backend.AppBanco.exception.BusinessException;
+import com.Backend.AppBanco.exception.ResourceNotFoundException;
 import com.Backend.AppBanco.repository.ContaRepository;
 import com.Backend.AppBanco.repository.UsuarioRepository;
 
 @Service
 public class ContaService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ContaService.class);
+
     @Autowired
     private ContaRepository contaRepository;
+    
     @Autowired
-private TransacaoService transacaoService;
+    private TransacaoService transacaoService;
+    
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Criar uma nova conta
+    @Transactional
     public ContaEntity criarConta(String nomeTitular, Integer idUsuario) {
+        logger.info("Criando conta para usuário ID: {} com nome titular: {}", idUsuario, nomeTitular);
+        
+        // Valida o nome do titular
+        if (nomeTitular == null || nomeTitular.trim().isEmpty()) {
+            throw new BusinessException("O nome do titular é obrigatório");
+        }
+        
         // Encontra o usuário pelo ID fornecido
         UsuarioEntity usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         // Cria a conta, associando o usuário encontrado
-        ContaEntity conta = new ContaEntity(nomeTitular, usuario);
+        ContaEntity conta = new ContaEntity(nomeTitular.trim(), usuario);
 
         // Salva a conta no repositório
-        return contaRepository.save(conta);
+        ContaEntity contaSalva = contaRepository.save(conta);
+        logger.info("Conta criada com sucesso. ID: {}", contaSalva.getIdConta());
+        
+        return contaSalva;
     }
 
-    // Buscar conta pelo ID
     public ContaEntity buscarContaPorId(Integer idConta) {
+        logger.debug("Buscando conta por ID: {}", idConta);
         return contaRepository.findById(idConta)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
     }
 
-    // Listar todas as contas
     public List<ContaEntity> listarContas() {
+        logger.debug("Listando todas as contas");
         return contaRepository.findAll();
     }
+    
+    public List<ContaEntity> listarContasPorUsuario(Integer idUsuario) {
+        logger.debug("Listando contas do usuário ID: {}", idUsuario);
+        return contaRepository.findAllByUsuario_IdUsuario(idUsuario);
+    }
 
-    // Consultar saldo da conta
     public BigDecimal consultarSaldo(Integer idConta) {
+        logger.debug("Consultando saldo da conta ID: {}", idConta);
         ContaEntity conta = buscarContaPorId(idConta);
         return conta.getSaldo();
     }
 
-   // Realizar um depósito em uma conta
-   public ContaEntity realizarDeposito(Integer idConta, BigDecimal valor) {
-    if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-        throw new RuntimeException("O valor do depósito deve ser positivo");
+    @Transactional
+    public ContaEntity realizarDeposito(Integer idConta, BigDecimal valor) {
+        logger.info("Realizando depósito de {} na conta ID: {}", valor, idConta);
+        
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("O valor do depósito deve ser maior que zero");
+        }
+
+        // Buscar a conta para realizar o depósito
+        ContaEntity conta = buscarContaPorId(idConta);
+        
+        if (!conta.getStatus()) {
+            throw new BusinessException("Não é possível realizar depósito em conta inativa");
+        }
+        
+        conta.setSaldo(conta.getSaldo().add(valor));
+
+        // Salvar a conta com o novo saldo
+        contaRepository.save(conta);
+
+        // Registrar a transação
+        transacaoService.criarTransacao(idConta, "DEPÓSITO", valor);
+        
+        logger.info("Depósito realizado com sucesso. Novo saldo: {}", conta.getSaldo());
+        return conta;
     }
 
-    // Buscar a conta para realizar o depósito
-    ContaEntity conta = buscarContaPorId(idConta);
-    conta.setSaldo(conta.getSaldo().add(valor));
+    @Transactional
+    public ContaEntity realizarSaque(Integer idConta, BigDecimal valor) {
+        logger.info("Realizando saque de {} da conta ID: {}", valor, idConta);
+        
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("O valor do saque deve ser maior que zero");
+        }
 
-    // Salvar a conta com o novo saldo
-    contaRepository.save(conta);
+        // Buscar a conta
+        ContaEntity conta = buscarContaPorId(idConta);
+        
+        if (!conta.getStatus()) {
+            throw new BusinessException("Não é possível realizar saque em conta inativa");
+        }
 
-    // Registrar a transação
-    transacaoService.criarTransacao(idConta, "DEPÓSITO", valor);
+        // Verificar se o saldo é suficiente para o saque
+        if (conta.getSaldo().compareTo(valor) < 0) {
+            logger.warn("Tentativa de saque com saldo insuficiente. Saldo: {}, Valor solicitado: {}", 
+                       conta.getSaldo(), valor);
+            throw new BusinessException("Saldo insuficiente para realizar o saque");
+        }
 
-    return conta;
-}
+        // Subtrair o valor do saque do saldo da conta
+        conta.setSaldo(conta.getSaldo().subtract(valor));
 
-// Realizar um saque de uma conta
-public ContaEntity realizarSaque(Integer idConta, BigDecimal valor) {
-    if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-        throw new RuntimeException("O valor do saque deve ser positivo");
+        // Salvar a conta com o saldo atualizado
+        contaRepository.save(conta);
+
+        // Registrar a transação
+        transacaoService.criarTransacao(idConta, "SAQUE", valor);
+        
+        logger.info("Saque realizado com sucesso. Novo saldo: {}", conta.getSaldo());
+        return conta;
     }
-
-    // Buscar a conta
-    ContaEntity conta = buscarContaPorId(idConta);
-
-    // Verificar se o saldo é suficiente para o saque
-    if (conta.getSaldo().compareTo(valor) < 0) {
-        throw new RuntimeException("Saldo insuficiente");
-    }
-
-    // Subtrair o valor do saque do saldo da conta
-    conta.setSaldo(conta.getSaldo().subtract(valor));
-
-    // Salvar a conta com o saldo atualizado
-    contaRepository.save(conta);
-
-    // Registrar a transação
-    transacaoService.criarTransacao(idConta, "SAQUE", valor);
-
-    return conta;
-}
 }

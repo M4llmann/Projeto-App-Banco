@@ -21,7 +21,7 @@ export class ContaService {
       return throwError(() => new Error('Usuário não encontrado no localStorage'));
     }
 
-    return this.http.get<ContaDTO[]>(`${this.baseUrl}/contas/${idUsuario}`);
+    return this.http.get<ContaDTO[]>(`${this.baseUrl}/contas/usuario/${idUsuario}`);
   }
 
   getSaldo(idConta: number): Observable<number> {
