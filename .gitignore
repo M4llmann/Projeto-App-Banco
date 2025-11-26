@@ -1,0 +1,71 @@
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Backend - Maven
+AppBanco/target/
+AppBanco/.mvn/
+AppBanco/mvnw
+AppBanco/mvnw.cmd
+AppBanco/.classpath
+AppBanco/.project
+AppBanco/.settings/
+
+# Frontend - Node
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.sass-cache/
+frontend/coverage/
+frontend/.nyc_output/
+frontend/*.log
+frontend/.vscode/
+frontend/.idea/
+
+# Docker
+Docker/dataPostgresql/
+Docker/dataPostgresql/**/*
+!Docker/dataPostgresql/.gitkeep
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.*.local
+*.env
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Arquivos de build
+*.jar
+*.war
+*.ear
+*.class
+
+# Arquivos de configuração local
+application-local.properties
+application-dev.properties
+
